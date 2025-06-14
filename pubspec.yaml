@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^0.13.5
+  jwt_decoder: ^2.0.1
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
