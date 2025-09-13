@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class Searchbar extends StatefulWidget {
   const Searchbar({super.key});
@@ -10,129 +12,64 @@ class Searchbar extends StatefulWidget {
 class _SearchbarState extends State<Searchbar> {
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme.of(context).colorScheme;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final bool isDark = themeProvider.isDarkMode;
+    final Color baseColor = isDark ? NeuColors.neuBaseDark : NeuColors.neuBase;
+    final List<BoxShadow> neuShadow = isDark ? NeuShadows.neuDark : NeuShadows.neu;
+    final Color textColor = isDark ? NeuColors.neuTextDark : NeuColors.neuText;
+
     return Row(
       children: [
         Expanded(
           child: Container(
-            // width: 250,
             height: 40,
             decoration: BoxDecoration(
-              color: colorScheme.secondaryContainer,
+              color: baseColor,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(30),
-                bottomLeft: Radius.circular(30),),
+                bottomLeft: Radius.circular(30),
+              ),
+              boxShadow: neuShadow,
             ),
-            child: const TextField(
+            child: TextField(
+              style: TextStyle(color: textColor),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                prefixIcon: Icon(Icons.search, color: isDark ? Colors.grey[400] : Colors.grey),
                 border: InputBorder.none,
                 hintText: 'Search',
+                hintStyle: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey),
               ),
             ),
           ),
         ),
-        // const SizedBox(width: 5),
+        const SizedBox(width: 5),
         Container(
-          // width: 60,
           height: 40,
           decoration: BoxDecoration(
-            color: colorScheme.primary,
+            color: baseColor,
             borderRadius: const BorderRadius.only(
               topRight: Radius.circular(30),
-              bottomRight: Radius.circular(30),),
-
+              bottomRight: Radius.circular(30),
+            ),
+            boxShadow: neuShadow,
           ),
           child: TextButton(
             onPressed: () {},
-            child: const Text('Search', style: TextStyle(color: Colors.white),),
+            style: TextButton.styleFrom(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              backgroundColor: Colors.transparent,
+              foregroundColor: textColor,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+            ),
+            child: Text('Search', style: TextStyle(color: textColor)),
           ),
         ),
       ],
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-
-// class SearchBarWithButton extends StatelessWidget {
-//   final TextEditingController searchController = TextEditingController();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Container(
-//         constraints: BoxConstraints(maxWidth: 400), // Equivalent to 'max-w-md'
-//         padding: EdgeInsets.symmetric(horizontal: 16), // To add spacing on sides
-//         child: Row(
-//           children: [
-//             // Search input field
-//             Expanded(
-//               child: TextField(
-//                 controller: searchController,
-//                 decoration: InputDecoration(
-//                   hintText: "Search...",
-//                   filled: true,
-//                   fillColor: Colors.grey[200], // Equivalent to 'bg-gray-100'
-//                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.horizontal(
-//                       left: Radius.circular(30), // Rounded left side
-//                     ),
-//                     borderSide: BorderSide.none, // No border
-//                   ),
-//                   focusedBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.horizontal(
-//                       left: Radius.circular(30), // Rounded left side
-//                     ),
-//                     borderSide: BorderSide(
-//                       color: Colors.yellow[500]!, // Equivalent to 'focus:ring-yellow-500'
-//                       width: 2,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             // Search button
-//             Container(
-//               height: 48,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   // Add your search functionality here
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   padding: EdgeInsets.symmetric(horizontal: 24),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.horizontal(
-//                       right: Radius.circular(30), // Rounded right side
-//                     ),
-//                   ),
-//                   primary: Colors.orange[400], // Right side gradient equivalent
-//                 ),
-//                 child: Text("Search"),
-//               ),
-//             ),
-//             SizedBox(width: 16), // Spacing between Search button and Add button
-//             // Add button (assuming a separate widget)
-//             AddButton(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class AddButton extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: 150, // Equivalent to 'min-w-[150px]'
-//       child: ElevatedButton(
-//         onPressed: () {
-//           // Add button functionality
-//         },
-//         child: Text('Add'),
-//       ),
-//     );
-//   }
-// }

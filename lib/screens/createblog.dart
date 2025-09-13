@@ -1,12 +1,13 @@
 import 'package:blog_app/models/user.dart';
 import 'package:blog_app/service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:blog_app/widgets/neu_container.dart';
+import 'package:blog_app/widgets/neu_button.dart';
+import 'package:blog_app/providers/theme_provider.dart';
 
 class Createblog extends StatefulWidget {
   const Createblog({super.key});
-  
 
   @override
   State<Createblog> createState() => _CreateblogState();
@@ -14,104 +15,151 @@ class Createblog extends StatefulWidget {
 
 class _CreateblogState extends State<Createblog> {
   String? dropdownValue;
-  TextEditingController titleController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
   final List<String> categories = [
     "Politics",
     "Technology",
     "Health",
     "Education",
-    "Finance"
+    "Finance",
+    "Travel",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    titleController.addListener(() => setState(() {}));
+    contentController.addListener(() => setState(() {}));
+  }
+
+  bool get canSave => titleController.text.trim().isNotEmpty && contentController.text.trim().isNotEmpty && dropdownValue != null;
+
   @override
   Widget build(BuildContext context) {
     var user = context.watch<User>();
+    var navigator = Navigator.of(context);
+    var messenger = ScaffoldMessenger.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final neuBase = isDark ? NeuColors.neuBaseDark : NeuColors.neuBase;
+    final neuText = isDark ? NeuColors.neuTextDark : NeuColors.neuText;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Create Blog"),
         centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
-      resizeToAvoidBottomInset: true,
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Container(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Text("Categories: "),
-                      DropdownButton(
-                        hint: const Text("Select Category"),
-                        dropdownColor: Theme.of(context).colorScheme.primaryContainer,
-                        value: dropdownValue,
-                        items: categories.map((category) {
-                          return DropdownMenuItem<String>(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            dropdownValue = value!;
-                          });
-                        },
-                      ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () async{
-                          var navigator = Navigator.of(context);
-                          var messenger = ScaffoldMessenger.of(context);
-                          Map<String, String> blog = {
-                            "category": dropdownValue!,
-                            "title": titleController.text,
-                            "content": contentController.text,
-                            "author":  user.name,
-                            "authorid": user.id,
-                          };
-                          var success = await createBlog(blog, user);
-                          if (success) {
-                            navigator.pop(true);
-                          } else {
-                            messenger.showSnackBar(const SnackBar(
-                              content: Text("Something went wrong!"),
-                            ));
-                          }
-                        },
-                        child: const Text("Save"),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  TextField(
-                    controller: titleController,
-                    maxLines: 1,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Title",
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  TextField(
-                    controller: contentController,
-                    maxLines: null,
-                    minLines: 10,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Content",
-                    ),
-                  ),
-                ],
-              ),
+        backgroundColor: neuBase,
+        foregroundColor: neuText,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: NeuButton(
+              onPressed: canSave
+                  ? () async {
+                      Map<String, String> blog = {
+                        "title": titleController.text,
+                        "content": contentController.text,
+                        "category": dropdownValue!,
+                        "author": user.name,
+                        "authorid": user.id!,
+                      };
+                      var success = await createBlog(blog, user);
+                      if (success) {
+                        navigator.pop(true);
+                      } else {
+                        messenger.showSnackBar(
+                          const SnackBar(content: Text("Something went wrong!")),
+                        );
+                      }
+                    }
+                  : null,
+              label: 'Save',
+              isDark: isDark,
+              padding: const EdgeInsetsGeometry.all(8),
+              borderRadius: 10,
             ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Categories
+              NeuContainer(
+                isDark: isDark,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Category:", style: TextStyle(color: neuText)),
+                    const SizedBox(width: 10),
+                    DropdownButton<String>(
+                      hint: Text("Select Category", style: TextStyle(color: neuText)),
+                      dropdownColor: neuBase,
+                      value: dropdownValue,
+                      items: categories.map((category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(category, style: TextStyle(color: neuText)),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          dropdownValue = value!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Title input
+              NeuContainer(
+                isDark: isDark,
+                child: TextField(
+                  controller: titleController,
+                  maxLines: 3,
+                  style: TextStyle(color: isDark ? NeuColors.neuTextDark : NeuColors.neuText),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    hintText: "Title",
+                    hintStyle: TextStyle(
+                      color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Content input
+              NeuContainer(
+                isDark: isDark,
+                child: TextField(
+                  controller: contentController,
+                  minLines: 10,
+                  maxLines: 15,
+                  style: TextStyle(color: isDark ? NeuColors.neuTextDark : NeuColors.neuText),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    hintText: "Content",
+                    hintStyle: TextStyle(
+                      color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

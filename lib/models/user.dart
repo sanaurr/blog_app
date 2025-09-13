@@ -23,7 +23,7 @@ class User with ChangeNotifier {
 
   bool get isAuthenticated => _accessToken != null;
   String get name => _name!;
-  String get id => _id!;
+  String? get id => _id;
   String get accessToken => _accessToken!;
   String get refreshToken => _refreshToken!;
 

@@ -1,5 +1,8 @@
 import 'package:blog_app/models/user.dart';
 import 'package:blog_app/service.dart';
+import 'package:blog_app/providers/theme_provider.dart';
+import 'package:blog_app/widgets/neu_button.dart';
+import 'package:blog_app/widgets/neu_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,21 +14,17 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
-  // Controllers for email and password fields
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   bool signin = true;
 
-  // Animation controller
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    // Animation for fading in the elements
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -34,8 +33,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       parent: _animationController,
       curve: Curves.easeIn,
     );
-
-    // Start the animation
     _animationController.forward();
   }
 
@@ -49,13 +46,22 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    
-    var colorScheme = Theme.of(context).colorScheme;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     return Scaffold(
-      backgroundColor: colorScheme.primaryContainer,
+      backgroundColor: isDark ? NeuColors.neuBaseDark : NeuColors.neuBase,
       appBar: AppBar(
-        backgroundColor: colorScheme.primary,
-        title: Text(signin ? 'Sign In' : 'Sign Up'),
+        backgroundColor: isDark ? NeuColors.neuBaseDark : NeuColors.neuBase,
+        foregroundColor: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+        elevation: 0,
+        title: Text(
+          signin ? 'Sign In' : 'Sign Up',
+          style: TextStyle(
+            color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: true,
@@ -64,133 +70,135 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           opacity: _fadeAnimation,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                       Text(
-                       signin ? "Welcome Back" : "Sign Up",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                        ),
+            child: NeuContainer(
+              isDark: isDark,
+              borderRadius: 24,
+              padding: const EdgeInsets.all(24.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      signin ? "Welcome Back" : "Sign Up",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
                       ),
-                      const SizedBox(height: 20),
-                      
-                      !signin ? TextField(
+                    ),
+                    const SizedBox(height: 20),
+                    if (!signin)
+                      TextField(
                         controller: nameController,
+                        style: TextStyle(
+                          color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+                        ),
                         decoration: InputDecoration(
                           labelText: 'Enter your name',
-                          prefixIcon: const Icon(Icons.person),
+                          labelStyle: TextStyle(
+                            color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+                          ),
+                          prefixIcon: Icon(Icons.person, color: isDark ? NeuColors.neuTextDark : NeuColors.neuText),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           filled: true,
-                          fillColor: colorScheme.primaryContainer,
+                          fillColor: isDark ? NeuColors.neuBaseDark.withOpacity(0.8) : NeuColors.neuBase.withOpacity(0.8),
                         ),
-                      ):const SizedBox(height: 20),
+                      )
+                    else
                       const SizedBox(height: 20),
-                      TextField(
-                        controller: emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          filled: true,
-                          fillColor: colorScheme.primaryContainer.withOpacity(0.5),
-                        ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: emailController,
+                      style: TextStyle(
+                        color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
                       ),
-                      const SizedBox(height: 20),
-                        
-                      // Password TextField
-                      TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          filled: true,
-                          fillColor: colorScheme.primaryContainer.withOpacity(0.5),
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(
+                          color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
                         ),
+                        prefixIcon: Icon(Icons.email, color: isDark ? NeuColors.neuTextDark : NeuColors.neuText),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: isDark ? NeuColors.neuBaseDark.withOpacity(0.8) : NeuColors.neuBase.withOpacity(0.8),
                       ),
-                      const SizedBox(height: 20),
-                        
-                     
-                      ElevatedButton(
-                        onPressed: () async{
-                          var navigator = Navigator.of(context);
-                          var messenger = ScaffoldMessenger.of(context);
-                          if (signin) {
-                            Map<String, String> data = {
-                              "email": emailController.text,
-                              "password": passwordController.text,
-                            };
-                            var success = await login(data, context.read<User>());
-                            if (success) {
-                              navigator.pop();
-                            } else {
-                              messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Login failed.'),
-                                ),  
-                            );
-                            }
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      style: TextStyle(
+                        color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
+                        ),
+                        prefixIcon: Icon(Icons.lock, color: isDark ? NeuColors.neuTextDark : NeuColors.neuText),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: isDark ? NeuColors.neuBaseDark.withOpacity(0.8) : NeuColors.neuBase.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    NeuButton(
+                      label: signin ? 'Sign In' : "Sign Up",
+                      isDark: isDark,
+                      onPressed: () async {
+                        var navigator = Navigator.of(context);
+                        var messenger = ScaffoldMessenger.of(context);
+                        if (signin) {
+                          Map<String, String> data = {
+                            "email": emailController.text,
+                            "password": passwordController.text,
+                          };
+                          var success = await login(data, context.read<User>());
+                          if (success) {
+                            navigator.pop();
                           } else {
-                            Map<String, String> data = {
-                              "name": nameController.text,
-                              "email": emailController.text,
-                              "password": passwordController.text,
-                            };
-                           var success = await signup(data, context.read<User>());
-                            if (success) {
-                              nameController.clear();
-                              emailController.clear();
-                              passwordController.clear();
-                              navigator.pop();
-                            } else {
-                              messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Sign up failed.'),
-                                ),
-                              );
-                            }
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Login failed.'),
+                              ),
+                            );
                           }
-                  
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                         signin ? 'Sign In': "Sign Up",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                        
-                      // Forgot Password Link
-                     if (signin) TextButton(
+                        } else {
+                          Map<String, String> data = {
+                            "name": nameController.text,
+                            "email": emailController.text,
+                            "password": passwordController.text,
+                          };
+                          var success = await signup(data, context.read<User>());
+                          if (success) {
+                            nameController.clear();
+                            emailController.clear();
+                            passwordController.clear();
+                            navigator.pop();
+                          } else {
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Sign up failed.'),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      borderRadius: 12,
+                      width: double.infinity,
+                    ),
+                    const SizedBox(height: 10),
+                    if (signin)
+                      TextButton(
                         onPressed: () {
                           // Forgot password action
                         },
@@ -201,23 +209,20 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                           ),
                         ),
                       ),
-                        
-                      // Register Link
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            signin = !signin;
-                          });
-                        },
-                        child:  Text(
-                         signin ? "Don't have an account? Sign Up": "Already have an account? Sign In",
-                          style: const TextStyle(
-                            color: Colors.blueAccent,
-                          ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          signin = !signin;
+                        });
+                      },
+                      child: Text(
+                        signin ? "Don't have an account? Sign Up" : "Already have an account? Sign In",
+                        style: const TextStyle(
+                          color: Colors.blueAccent,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -227,4 +232,3 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 }
-

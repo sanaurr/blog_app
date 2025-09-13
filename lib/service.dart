@@ -5,12 +5,12 @@ import 'package:blog_app/models/blogmodel.dart';
 import 'package:blog_app/models/user.dart';
 import 'package:http/http.dart';
 
-Future<List<BlogModel>> allBlogs() async{
+Future<List<BlogModel>> allBlogs(String category) async{
   
   const String apiurl = "https://blog-server-sanaur-rahamans-projects.vercel.app/posts";
   // const String apiurl = "http://192.168.100.113:3000/posts";
   try {
-    final response = await get(Uri.parse(apiurl));
+    final response = await get(Uri.parse("$apiurl/category/$category"));
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       List<BlogModel> allblogs = data.map((item) => BlogModel.fromJson(item)).toList();
@@ -126,3 +126,12 @@ Future<bool> updateBlog(Map<String, String> data, String id, User user) async{
   }
   return false;
 }
+
+// var success = await deleteBlog(widget.blog.id, user);
+//                 if (success) {
+//                   navigator.pop(true);
+//                 } else {
+//                   messenger.showSnackBar(
+//                     const SnackBar(content: Text("Failed to delete blog")),
+//                   );
+//                 }
