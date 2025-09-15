@@ -9,10 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_html: ^3.0.0
+  flutter_quill: ^11.4.2
+  flutter_quill_delta_from_html: ^1.5.3
+  flutter_quill_extensions: ^11.0.0
   http: ^0.13.5
   jwt_decoder: ^2.0.1
   provider: ^6.1.2
   shared_preferences: ^2.3.2
+  url_launcher: ^6.3.2
+  vsc_quill_delta_to_html: ^1.0.5
 
 dev_dependencies:
   flutter_test:

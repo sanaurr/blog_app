@@ -1,13 +1,19 @@
 import 'package:blog_app/models/blogmodel.dart';
 import 'package:blog_app/models/user.dart';
+import 'package:blog_app/providers/loading_provider.dart';
 import 'package:blog_app/providers/theme_provider.dart';
+import 'package:blog_app/screens/about.dart';
 import 'package:blog_app/screens/blogview.dart';
 import 'package:blog_app/screens/createblog.dart';
+import 'package:blog_app/screens/latest_posts.dart';
 import 'package:blog_app/screens/login.dart';
+import 'package:blog_app/screens/my_blogs.dart';
 import 'package:blog_app/service.dart';
 import 'package:blog_app/widgets/author_icon.dart';
 import 'package:blog_app/widgets/neu_button.dart';
+import 'package:blog_app/widgets/neu_loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/neu_container.dart'; // import NeuContainer
@@ -49,6 +55,7 @@ class _BlogState extends State<Blog> {
     var size = MediaQuery.sizeOf(context);
     var cardCount = (size.width - 10) ~/ 200;
     var cardWidth = (size.width - 10) / cardCount;
+    var loadingprovider = context.watch<LoadingProvider>();
 
     return Scaffold(
         appBar: AppBar(
@@ -129,10 +136,37 @@ class _BlogState extends State<Blog> {
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
                     child: NeuContainer(
                       width: double.infinity,
-                      onTap: () {
-                        // category = categories[i];
-                        // loadBlogs(category!);
-                        // Navigator.pop(context);
+                      onTap: () async {
+                        if (i == 0) {
+                          Navigator.pop(context);
+                        } else if (i == 1) {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangeNotifierProvider.value(
+                                value: user,
+                                builder: (context, _) => const MyBlogs(),
+                              ),
+                            ),
+                          );
+                        } else if (i == 2) {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangeNotifierProvider.value(
+                                value: user,
+                                builder: (context, _) => const LatestPosts(),
+                              ),
+                            ),
+                          );
+                        } else if (i == 3) {
+                          Navigator.pop(context);
+
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()));
+                          loadingprovider.setLoading(true);
+                        }
                       },
                       isDark: isDark,
                       child: Text(navItems[i], style: TextStyle(color: neuText)),
@@ -151,6 +185,7 @@ class _BlogState extends State<Blog> {
                         user.logout();
                         Navigator.pop(context);
                       } else {
+                        Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -236,7 +271,7 @@ class _BlogState extends State<Blog> {
                     (index) => SingleChildScrollView(
                       padding: const EdgeInsets.all(10.0),
                       child: blogs == null
-                          ? const Center(child: CircularProgressIndicator())
+                          ? Center(child: NeuLoading(isDark: isDark))
                           : blogs!.isEmpty
                               ? Center(
                                   child: Text('No Items', style: TextStyle(color: neuText)),
@@ -281,13 +316,8 @@ class _BlogState extends State<Blog> {
                                                   ),
                                                 ),
                                                 const SizedBox(height: 5),
-                                                Text(
-                                                  blog.content,
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
-                                                  ),
+                                                Html(
+                                                  data: blog.content.substring(0, blog.content.length > 100 ? 100 : blog.content.length),
                                                 ),
                                                 const SizedBox(height: 10),
                                                 NeuButton(
@@ -347,6 +377,8 @@ class _BlogState extends State<Blog> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
+                  backgroundColor: isDark ? NeuColors.neuBaseDark : NeuColors.neuBase,
+                  shadowColor: isDark ? NeuColors.neuBaseDark : NeuColors.neuBase,
                   title: const Text('Not Authenticated'),
                   content: const Text('Please log in to create a blog post.'),
                   actions: [
@@ -355,6 +387,22 @@ class _BlogState extends State<Blog> {
                         Navigator.pop(context);
                       },
                       child: const Text('OK'),
+                    ),
+                    NeuButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Login(),
+                            ));
+                      },
+                      label: 'Login',
+                      width: double.tryParse((size.width * 0.2).toStringAsFixed(2)),
+                      height: cardWidth * 0.1,
+                      isDark: isDark,
+                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                      borderRadius: 10,
                     ),
                   ],
                 ),
