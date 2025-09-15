@@ -1,7 +1,10 @@
 import 'package:blog_app/blog.dart';
 import 'package:blog_app/models/user.dart';
+import 'package:blog_app/providers/loading_provider.dart';
 import 'package:blog_app/providers/theme_provider.dart';
+import 'package:blog_app/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -14,6 +17,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider.value(value: user),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LoadingProvider()),
       ],
       child: const MainApp(),
     ),
@@ -31,12 +35,22 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     var themeProvider = context.watch<ThemeProvider>();
+    var loadingProvider = context.watch<LoadingProvider>();
     return MaterialApp(
       theme: NeuTheme.lightTheme,
       darkTheme: NeuTheme.darkTheme,
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        FlutterQuillLocalizations.delegate,
+      ],
       home: const Blog(),
+      builder: (context, child) => Stack(
+        children: [
+          child!,
+          if (loadingProvider.isLoading) const LoadingWidget(),
+        ],
+      ),
     );
   }
 }

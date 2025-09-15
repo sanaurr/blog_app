@@ -1,8 +1,10 @@
 import 'package:blog_app/models/blogmodel.dart';
 import 'package:blog_app/models/user.dart';
 import 'package:blog_app/screens/editblog.dart';
+import 'package:blog_app/service.dart';
 import 'package:blog_app/widgets/neu_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 import 'package:blog_app/providers/theme_provider.dart';
 
@@ -15,6 +17,13 @@ class Blogview extends StatefulWidget {
 }
 
 class _BlogviewState extends State<Blogview> {
+  void _deleteBlog(String id) async {
+    var success = await deleteBlog(id, context.read<User>());
+    if (success) {
+      Navigator.pop(context, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var user = context.watch<User>();
@@ -48,7 +57,7 @@ class _BlogviewState extends State<Blogview> {
                         navigator.pop(true);
                       }
                     } else if (value == "delete") {
-                      _confirmDelete(context);
+                      _confirmDelete(context, id: widget.blog.id);
                     }
                   },
                   itemBuilder: (context) => [
@@ -77,7 +86,6 @@ class _BlogviewState extends State<Blogview> {
               : const SizedBox.shrink(),
         ],
       ),
-
       body: Container(
         color: neuBase,
         padding: const EdgeInsets.all(10.0),
@@ -106,36 +114,36 @@ class _BlogviewState extends State<Blogview> {
 
                 // Divider(color: neuText),
                 const SizedBox(height: 20),
-                Text(widget.blog.content, style: TextStyle(color: neuText)),
+                Html(data: widget.blog.content),
               ],
             ),
           ),
         ),
       ),
-      
     );
   }
-}
 
-void _confirmDelete(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text("Delete Blog"),
-      content: const Text("Are you sure you want to delete this blog?"),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
-        ),
-        TextButton(
-          onPressed: () {
-            // call delete function here
-            Navigator.pop(context);
-          },
-          child: const Text("Delete", style: TextStyle(color: Colors.red)),
-        ),
-      ],
-    ),
-  );
+  void _confirmDelete(BuildContext context, {required String id}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Blog"),
+        content: const Text("Are you sure you want to delete this blog?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              
+              _deleteBlog(id);
+              Navigator.pop(context);
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 }

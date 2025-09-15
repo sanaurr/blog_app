@@ -56,7 +56,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         foregroundColor: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
         elevation: 0,
         title: Text(
-          signin ? 'Sign In' : 'Sign Up',
+          signin ? 'Log In' : 'Sign Up',
           style: TextStyle(
             color: isDark ? NeuColors.neuTextDark : NeuColors.neuText,
             fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     ),
                     const SizedBox(height: 24),
                     NeuButton(
-                      label: signin ? 'Sign In' : "Sign Up",
+                      label: signin ? 'Log In' : "Sign Up",
                       isDark: isDark,
                       onPressed: () async {
                         var navigator = Navigator.of(context);
